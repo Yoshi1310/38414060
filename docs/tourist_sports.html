@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="ja" class="h-100" data-bs-theme="auto">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta
+      name="author"
+      content="Mark Otto, Jacob Thornton, and Bootstrap contributors"
+    />
+    <meta name="generator" content="Astro v5.13.2" />
+    <title>観光スポット</title>
+    <link
+      rel="canonical"
+      href="https://getbootstrap.com/docs/5.3/examples/cover/"
+    />
+    <script src="./assets/js/color-modes.js"></script>
+    <link href="./assets/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <meta name="theme-color" content="#712cf9" />
+    <link href="cover.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=
+    ""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-
+    20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=
+    "">
+    </script>
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+      .b-example-divider {
+        width: 100%;
+        height: 3rem;
+        background-color: #0000001a;
+        border: solid rgba(0, 0, 0, 0.15);
+        border-width: 1px 0;
+        box-shadow:
+          inset 0 0.5em 1.5em #0000001a,
+          inset 0 0.125em 0.5em #00000026;
+      }
+      .b-example-vr {
+        flex-shrink: 0;
+        width: 1.5rem;
+        height: 100vh;
+      }
+      .bi {
+        vertical-align: -0.125em;
+        fill: currentColor;
+      }
+      .nav-scroller {
+        position: relative;
+        z-index: 2;
+        height: 2.75rem;
+        overflow-y: hidden;
+      }
+      .nav-scroller .nav {
+        display: flex;
+        flex-wrap: nowrap;
+        padding-bottom: 1rem;
+        margin-top: -1px;
+        overflow-x: auto;
+        text-align: center;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+      }
+      .btn-bd-primary {
+        --bd-violet-bg: #712cf9;
+        --bd-violet-rgb: 112.520718, 44.062154, 249.437846;
+        --bs-btn-font-weight: 600;
+        --bs-btn-color: var(--bs-white);
+        --bs-btn-bg: var(--bd-violet-bg);
+        --bs-btn-border-color: var(--bd-violet-bg);
+        --bs-btn-hover-color: var(--bs-white);
+        --bs-btn-hover-bg: #6528e0;
+        --bs-btn-hover-border-color: #6528e0;
+        --bs-btn-focus-shadow-rgb: var(--bd-violet-rgb);
+        --bs-btn-active-color: var(--bs-btn-hover-color);
+        --bs-btn-active-bg: #5a23c8;
+        --bs-btn-active-border-color: #5a23c8;
+      }
+      .bd-mode-toggle {
+        z-index: 1500;
+      }
+      .bd-mode-toggle .bi {
+        width: 1em;
+        height: 1em;
+      }
+      .bd-mode-toggle .dropdown-menu .active .bi {
+        display: block !important;
+      }
+
+      .cover-container {
+        max-width: 1200px;
+      }
+  
+    </style>
+  </head>
+  <body class="d-flex h-100 text-center text-bg-dark">
+    <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+      <symbol id="check2" viewBox="0 0 16 16">
+        <path
+          d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"
+        ></path>
+      </symbol>
+      <symbol id="circle-half" viewBox="0 0 16 16">
+        <path
+          d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"
+        ></path>
+      </symbol>
+      <symbol id="moon-stars-fill" viewBox="0 0 16 16">
+        <path
+          d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"
+        ></path>
+        <path
+          d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"
+        ></path>
+      </symbol>
+      <symbol id="sun-fill" viewBox="0 0 16 16">
+        <path
+          d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"
+        ></path>
+      </symbol>
+    </svg>
+    <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+      <header class="mb-auto">
+        <div>
+          <h2 class="float-md-start mb-0"><a class="nav-link" fw-bold href="index.html">Nagoya Guide</a></h2>
+          <nav class="nav nav-masthead justify-content-center float-md-end">
+            <a
+              class="nav-link fw-bold py-1 px-0"
+              aria-current="page"
+              href="index.html"
+              >ホーム</a
+            >
+            <a class="nav-link fw-bold py-1 px-0 active" href="tourist_sports.html">観光スポット</a>
+            <a class="nav-link fw-bold py-1 px-0" href="gourmet.html">グルメ</a>
+            <a class="nav-link fw-bold py-1 px-0" href="souvenir.html">お土産</a>
+          </nav>
+        </div>
+      </header>
+
+      <main>
+        <section class="py-5 text-center container">
+          <div class="row py-lg-5">
+            <div class="col-lg-6 col-md-8 mx-auto">
+              <h1 class="fw-light">観光スポット</h1>
+              <p>
+                愛知県西部に位置し、1610年に徳川家康が町ごとすべてを移した“清須越し”によってスタートした名古屋市。東京、大阪につぐ大都市でありながら、「名古屋城」「徳川園」などといった近世武家文化を感じるスポットが多いのも特徴です。
+              </p>
+            </div>
+          </div>
+        </section>
+        <div class="album pb-5">
+          <div class="container">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+              <div class="col d-flex">
+                <div class="card shadow-sm h-100 w-100">
+                  <img
+                    height="225"
+                    src="fig/観光スポット/名古屋城_1.png"
+                  >
+                  </img>
+                  <div class="card-body">
+                    <h6>名古屋城</h6>
+                    <p class="card-text" style="text-align: left;">
+                      1615年、徳川家康によって建てられた名古屋城。
+                      黄金の鯱を頂き、史絢爛豪華な本丸御殿、
+                      城郭として国宝第一号に指定された名城でした。
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="btn-group">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-secondary"
+                          data-bs-toggle="modal"
+                          data-bs-target="#nagoyaCastleModal"
+                        >
+                          詳細
+                        </button>
+                        <div class="modal fade" id="nagoyaCastleModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="nagoyaCastleModalLabel" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered modal-xl">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="nagoyaCastleModalLabel">名古屋城</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <div class="row">
+                                  <div class="col-md-6">
+                                    <figure class="figure">
+                                      <img src="fig/観光スポット/名古屋城_2.png" class="figure-img img-fluid rounded">
+                                    </figure> 
+                                  </div>
+                                  <div class="col-md-6">
+                                    <div id="nagoyaCastleMap" style="height: 400px;"></div>
+                                    <script>
+                                      var nagoyaCastleMap = L.map('nagoyaCastleMap').setView([35.1855, 136.8990], 14);
+                                      var marker = L.marker([35.1855, 136.8990]).addTo(nagoyaCastleMap);
+
+                                      L.tileLayer(
+                                      'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+                                      ).addTo(nagoyaCastleMap);
+
+                                      var modal = document.getElementById('nagoyaCastleModal');
+
+                                      modal.addEventListener('shown.bs.modal', function () {
+                                        nagoyaCastleMap.invalidateSize();
+                                      });
+                                    </script>
+                                  </div>
+                                </div>                         
+                                <p style="text-align: left;">
+                                  名古屋城には、復元された豪華絢爛な「本丸御殿」や、江戸時代から現存する重要文化財の「隅櫓」、
+                                  巨大な「金のシャチホコ（現在天守閣は閉館中ですが外観は見学可）」 があります。他にも大名庭園の「二之丸庭園」 や、
+                                  ご当地グルメが楽しめる城下町「金シャチ横丁」 など見どころが満載です。
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col d-flex">
+                <div class="card shadow-sm h-100 w-100">
+                  <img
+                    height="225"
+                    src="fig/観光スポット/熱田神宮_1.png"
+                  >
+                  </img>
+                  <div class="card-body">
+                    <h6>熱田神宮</h6>
+                    <p class="card-text" style="text-align: left;">
+                      三種の神器の一つである「草薙神剣（くさなぎのみつるぎ）」を祀る神社として全国的に知られている。
+                      伊勢神宮に次ぐ格式の高い神社。
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="btn-group">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-secondary"
+                          data-bs-toggle="modal"
+                          data-bs-target="#atsutajinguModal"
+                        >
+                          詳細
+                        </button>
+                        <div class="modal fade" id="atsutajinguModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="atsutajinguModalLabel" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered modal-xl">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="atsutajinguModalLabel">熱田神宮</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <div class="row">
+                                  <div class="col-md-6">
+                                    <figure class="figure">
+                                      <img src="fig/観光スポット/熱田神宮_2.png" class="figure-img img-fluid rounded">
+                                    </figure> 
+                                  </div>
+                                  <div class="col-md-6">
+                                    <div id="atsutajinguMap" style="height: 400px;"></div>
+                                    <script>
+                                      var atsutajinguMap = L.map('atsutajinguMap').setView([35.12736, 136.908], 14);
+                                      var marker = L.marker([35.12736, 136.908]).addTo(atsutajinguMap);
+
+                                      L.tileLayer(
+                                      'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+                                      ).addTo(atsutajinguMap);
+
+                                      var modal = document.getElementById('atsutajinguModal');
+
+                                      modal.addEventListener('shown.bs.modal', function () {
+                                        atsutajinguMap.invalidateSize();
+                                      });
+                                    </script>
+                                  </div>
+                                </div>                         
+                                <p style="text-align: left;">
+                                  熱田神宮の創祀は、三種の神器の一つ草薙神剣（くさなぎのみつるぎ）の鎮座に始まります。
+                                  第12代景行天皇の御代に、日本武尊（やまとたけるのみこと）は神剣を今の名古屋市緑区大高町火上山に留め置かれたまま三重県亀山市能褒野（のぼの）でなくなられました。
+                                  尊のお妃である宮簀媛命（みやすひめのみこと）は、神剣をここ熱田の地にお祀りになられました。
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col d-flex">
+                <div class="card shadow-sm h-100 w-100">
+                  <img
+                    height="225"
+                    src="fig/観光スポット/名古屋港水族館_1.png"
+                  >
+                  </img>
+                  <div class="card-body">
+                    <h6>名古屋港水族館</h6>
+                    <p class="card-text" style="text-align: left;">
+                      シャチやイルカ、ベルーガ（シロイルカ）などの海の生き物を間近に見られる、愛知県名古屋市港区にある日本最大級の公設水族館です。
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="btn-group">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-secondary"
+                          data-bs-toggle="modal"
+                          data-bs-target="#nagoyakouaqModal"
+                        >
+                          詳細
+                        </button>
+                        <div class="modal fade" id="nagoyakouaqModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="nagoyakouaqModalLabel" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered modal-xl">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="snagoyakouaqModalLabel">名古屋港水族館</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <div class="row">
+                                  <div class="col-md-6">
+                                    <figure class="figure">
+                                      <img src="fig/観光スポット/名古屋港水族館_2.png" class="figure-img img-fluid rounded">
+                                    </figure> 
+                                  </div>
+                                  <div class="col-md-6">
+                                    <div id="nagoyakouaqMap" style="height: 400px;"></div>
+                                    <script>
+                                      var nagoyakouaqMap = L.map('nagoyakouaqMap').setView([35.09068, 136.8782], 14);
+                                      var marker = L.marker([35.09068, 136.8782]).addTo(nagoyakouaqMap);
+
+                                      L.tileLayer(
+                                      'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+                                      ).addTo(nagoyakouaqMap);
+
+                                      var modal = document.getElementById('nagoyakouaqModal');
+
+                                      modal.addEventListener('shown.bs.modal', function () {
+                                        nagoyakouaqMap.invalidateSize();
+                                      });
+                                    </script>
+                                  </div>
+                                </div>                         
+                                <p style="text-align: left;">
+                                  南館では「南極への旅」をテーマとして、南極観測船ふじが日本から南極へ至るコースに沿って5つの水域にすむ生き物をその自然環境とともに紹介。
+                                  北館では「35億年はるかなる旅～ふたたび海へもどった動物たち」をテーマに、バンドウイルカやベルーガなどを飼育展示。
+                                  約3,000人収容のスタンドを設置した日本最大のメインプールでは、生態や行動をより深く理解できるようにパフォーマンスを実施。
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col d-flex">
+                <div class="card shadow-sm h-100 w-100">
+                  <img
+                    height="225"
+                    src="fig/観光スポット/東山動植物園_1.png"
+                  >
+                  </img>
+                  <div class="card-body">
+                    <h6>東山動植物園</h6>
+                    <p class="card-text" style="text-align: left;">
+                      愛知県名古屋市にある、コアラやゴリラなど約450種の動物を飼育する日本一の飼育種類数を誇る市営の総合公園です。
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="btn-group">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-secondary"
+                          data-bs-toggle="modal"
+                          data-bs-target="#higashiyamaZtoB_Modal"
+                        >
+                          詳細
+                        </button>
+                        <div class="modal fade" id="higashiyamaZtoB_Modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="higashiyamaZtoB_ModalLabel" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered modal-xl">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="higashiyamaZtoB_ModalLabel">東山動植物園</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <div class="row">
+                                  <div class="col-md-6">
+                                    <figure class="figure">
+                                      <img src="fig/観光スポット/東山動植物園_2.png" class="figure-img img-fluid rounded">
+                                    </figure> 
+                                  </div>
+                                  <div class="col-md-6">
+                                    <div id="higashiyamaZtoB_Map" style="height: 400px;"></div>
+                                    <script>
+                                      var higashiyamaZtoB_Map = L.map('higashiyamaZtoB_Map').setView([35.1545, 136.9814], 14);
+                                      var marker = L.marker([35.1545, 136.9814]).addTo(higashiyamaZtoB_Map);
+
+                                      L.tileLayer(
+                                      'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+                                      ).addTo(higashiyamaZtoB_Map);
+
+                                      var modal = document.getElementById('higashiyamaZtoB_Modal');
+
+                                      modal.addEventListener('shown.bs.modal', function () {
+                                        higashiyamaZtoB_Map.invalidateSize();
+                                      });
+                                    </script>
+                                  </div>
+                                </div>                         
+                                <p style="text-align: left;">
+                                  小さなメダカから大きなアジアゾウまで飼育種類数は日本一で、多種多様な動物たちを観察することができます。
+                                  イケメンで有名なニシゴリラのシャバーニが暮らすゴリラ・チンパンジー舎、ゾージアム(アジアゾウ舎)やコアラ舎などの多様な展示施設では、動物を観察するだけでなく、その生態や生息地の紹介など学習展示も豊富。楽しみながら学ぶことができます。
+                                  植物園には大温室や丘陵地の自然林を利用し約7,000種の植物を展示しています。桜の回廊には約100品種1,000本の桜が春を彩ります。秋には奥池や日本庭園を中心に約500本の樹木が色づき、市内屈指の紅葉スポットとなっています。その他にも椿園、バラ園、お花畑など四季折々の趣のある風景を楽しめます。
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col d-flex">
+                <div class="card shadow-sm h-100 w-100">
+                  <img
+                    height="225"
+                    src="fig/観光スポット/大須商店街_1.png"
+                  >
+                  </img>
+                  <div class="card-body">
+                    <h6>大須商店街</h6>
+                    <p class="card-text" style="text-align: left;">
+                      約1,200店舗が軒を連ねる名古屋最大の繁華街であり、グルメ、サブカルチャー、歴史が混ざり合う「ごった煮」の雰囲気が魅力の活気あふれる場所です。
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="btn-group">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-secondary"
+                          data-bs-toggle="modal"
+                          data-bs-target="#OosushoutenModal"
+                        >
+                          詳細
+                        </button>
+                        <div class="modal fade" id="OosushoutenModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="OosushoutenModalLabel" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered modal-xl">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="OosushoutenModalLabel">大須商店街</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <div class="row">
+                                  <div class="col-md-6">
+                                    <figure class="figure">
+                                      <img src="fig/観光スポット/大須商店街_2.png" class="figure-img img-fluid rounded">
+                                    </figure> 
+                                  </div>
+                                  <div class="col-md-6">
+                                    <div id="OosushoutenMap" style="height: 400px;"></div>
+                                    <script>
+                                      var OosushoutenMap = L.map('OosushoutenMap').setView([35.15962, 136.9017], 14);
+                                      var marker = L.marker([35.15962, 136.9017]).addTo(OosushoutenMap);
+
+                                      L.tileLayer(
+                                      'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+                                      ).addTo(OosushoutenMap);
+
+                                      var modal = document.getElementById('OosushoutenModal');
+
+                                      modal.addEventListener('shown.bs.modal', function () {
+                                        OosushoutenMap.invalidateSize();
+                                      });
+                                    </script>
+                                  </div>
+                                </div>                         
+                                <p style="text-align: left;">
+                                  日本一元気な商店街といわれ、家電店から古着屋さん、グルメまで、あらゆる業種のお店が軒を連ねており、いつも多くの人たちで賑わい、活気にあふれています。商店街には、万松寺があり、近くには大須演劇場もあります。
+                                  又、8月には大須夏まつり、10月には大須大道町人祭り、2月には大須節分宝船行列など一年を通じてイベントが開催されます。
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col d-flex">
+                <div class="card shadow-sm h-100 w-100">
+                  <img
+                    height="225"
+                    src="fig/観光スポット/ノリタケの森_1.png"
+                  >
+                  </img>
+                  <div class="card-body">
+                    <h6>ノリタケの森</h6>
+                    <p class="card-text" style="text-align: left;">
+                      愛知県名古屋市にある、陶磁器メーカー「ノリタケ」が創立100周年を記念してオープンした緑豊かな複合施設です。
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="btn-group">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-secondary"
+                          data-bs-toggle="modal"
+                          data-bs-target="#noritakeModal"
+                        >
+                          詳細
+                        </button>
+                        <div class="modal fade" id="noritakeModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="noritakeModalLabel" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered modal-xl">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="noritakeModalLabel">ノリタケの森</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <div class="row">
+                                  <div class="col-md-6">
+                                    <figure class="figure">
+                                      <img src="fig/観光スポット/ノリタケの森_2.png" class="figure-img img-fluid rounded">
+                                    </figure> 
+                                  </div>
+                                  <div class="col-md-6">
+                                    <div id="mapid" style="height: 400px;"></div>
+                                    <script>
+                                      var noritakeMap = L.map('mapid').setView([35.17954, 136.8812], 14);
+                                      var marker = L.marker([35.17954, 136.8812]).addTo(noritakeMap);
+
+                                      L.tileLayer(
+                                      'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+                                      ).addTo(noritakeMap);
+
+                                      var modal = document.getElementById('noritakeModal');
+
+                                      modal.addEventListener('shown.bs.modal', function () {
+                                        noritakeMap.invalidateSize();
+                                      });
+                                    </script>
+                                  </div>
+                                </div>                         
+                                <p style="text-align: left;">
+                                  名古屋市西区にある陶磁器メーカー「ノリタケ」が創立100周年を記念して開いた緑豊かな複合施設です。主な見どころとして、クラフトセンター（製造見学）、ノリタケミュージアム、直営ショップやレストランが集まっています。
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col d-flex">
+                <div class="card shadow-sm h-100 w-100">
+                  <img
+                    height="225"
+                    src="fig/観光スポット/中部電力MIRAITOWER_2.png"
+                  >
+                  </img>
+                  <div class="card-body">
+                    <h6>中部電力 MIRAI TOWER</h6>
+                    <p class="card-text" style="text-align: left;">
+                      屋上階の水の宇宙船、地上階の緑の大地、1階のバスターミナル、地下階の銀河の広場、ショップからなっています。
+
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="btn-group">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-secondary"
+                          data-bs-toggle="modal"
+                          data-bs-target="#oashisuModal"
+                        >
+                          詳細
+                        </button>
+                        <div class="modal fade" id="oashisuModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="oashisuModalLabel" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered modal-xl">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="oashisuModalLabel">中部電力 MIRAI TOWER</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <div class="row">
+                                  <div class="col-md-6">
+                                    <figure class="figure">
+                                      <img src="fig/観光スポット/中部電力MIRAI_TOWER_2.png" class="figure-img img-fluid rounded">
+                                    </figure> 
+                                  </div>
+                                  <div class="col-md-6">
+                                    <div id="oashisuMap" style="height: 400px;"></div>
+                                    <script>
+                                      var oashisuMap = L.map('oashisuMap').setView([35.17063, 136.909], 14);
+                                      var marker = L.marker([35.17063, 136.909]).addTo(oashisuMap);
+
+                                      L.tileLayer(
+                                      'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+                                      ).addTo(oashisuMap);
+
+                                      var modal = document.getElementById('oashisuModal');
+
+                                      modal.addEventListener('shown.bs.modal', function () {
+                                        oashisuMap.invalidateSize();
+                                      });
+                                    </script>
+                                  </div>
+                                </div>                         
+                                <p style="text-align: left;">
+                                  水を湛えたガラスの大屋根「水の宇宙船」がシンボルの立体型公園。地上公園「緑の大地」、バスターミナルの他、地下の「銀河の広場」は約30のショップが並び、様々なイベントが開催される。夜にライトアップされる水の宇宙船は人気のフォトジェニックスポット。
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col d-flex">
+                <div class="card shadow-sm h-100 w-100">
+                  <img
+                    height="225"
+                    src="fig/観光スポット/名古屋市科学館_1.png"
+                  >
+                  </img>
+                  <div class="card-body">
+                    <h6>名古屋市科学館</h6>
+                    <p class="card-text" style="text-align: left;">
+                      愛知県名古屋市中区の白川公園内にある国内屈指の総合科学館です。主な特徴として、世界最大級のプラネタリウム、高さ9mの人工竜巻ラボがあります。
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="btn-group">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-secondary"
+                          data-bs-toggle="modal"
+                          data-bs-target="#nagoyakagakuModal"
+                        >
+                          詳細
+                        </button>
+                        <div class="modal fade" id="nagoyakagakuModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="nagoyakagakuModalLabel" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered modal-xl">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="nagoyakagakuModalLabel">名古屋市科学館</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <div class="row">
+                                  <div class="col-md-6">
+                                    <figure class="figure">
+                                      <img src="fig/観光スポット/名古屋市科学館_2.png" class="figure-img img-fluid rounded">
+                                    </figure> 
+                                  </div>
+                                  <div class="col-md-6">
+                                    <div id="nagoyakagakuMap" style="height: 400px;"></div>
+                                    <script>
+                                      var nagoyakagakuMap = L.map('nagoyakagakuMap').setView([35.16505, 136.8997], 14);
+                                      var marker = L.marker([35.16505, 136.8997]).addTo(nagoyakagakuMap);
+
+                                      L.tileLayer(
+                                      'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+                                      ).addTo(nagoyakagakuMap);
+
+                                      var modal = document.getElementById('nagoyakagakuModal');
+
+                                      modal.addEventListener('shown.bs.modal', function () {
+                                        nagoyakagakuMap.invalidateSize();
+                                      });
+                                    </script>
+                                  </div>
+                                </div>                         
+                                <p style="text-align: left;">
+                                  ドーム内径35mの世界最大級のプラネタリウムドーム「ＦＵＪＩスカイドーム」を備えた総合科学館。
+                                  ドームの球体を強調した外観デザインに加え、マイナス30度の部屋で極地の疑似体験や高さ9mの人工竜巻など、自然の驚異を体感できるエンターテイメント性豊かな大型展示を始め、約270種類の展示を楽しめます。
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col d-flex">
+                <div class="card shadow-sm h-100 w-100">
+                  <img
+                    height="225"
+                    src="fig/観光スポット/徳川園_1.png"
+                  >
+                  </img>
+                  <div class="card-body">
+                    <h6>徳川園</h6>
+                    <p class="card-text" style="text-align: left;">
+                      愛知県名古屋市東区にある池泉回遊式の美しい日本庭園です。尾張藩主の隠居所を起源とし、豪快な岩組みや四季折々の自然が楽しめます。
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="btn-group">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-secondary"
+                          data-bs-toggle="modal"
+                          data-bs-target="#tokugawaenModal"
+                        >
+                          詳細
+                        </button>
+                        <div class="modal fade" id="tokugawaenModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="tokugawaenModalLabel" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered modal-xl">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="tokugawaenModalLabel">徳川園</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <div class="row">
+                                  <div class="col-md-6">
+                                    <figure class="figure">
+                                      <img src="fig/観光スポット/徳川園_2.png" class="figure-img img-fluid rounded">
+                                    </figure> 
+                                  </div>
+                                  <div class="col-md-6">
+                                    <div id="tokugawaenMap" style="height: 400px;"></div>
+                                    <script>
+                                      var tokugawaenMap = L.map('tokugawaenMap').setView([35.184424, 136.9326], 14);
+                                      var marker = L.marker([35.184424, 136.9326]).addTo(tokugawaenMap);
+
+                                      L.tileLayer(
+                                      'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+                                      ).addTo(tokugawaenMap);
+
+                                      var modal = document.getElementById('tokugawaenModal');
+
+                                      modal.addEventListener('shown.bs.modal', function () {
+                                        tokugawaenMap.invalidateSize();
+                                      });
+                                    </script>
+                                  </div>
+                                </div>                         
+                                <p style="text-align: left;">
+                                  徳川園は、池泉回遊式の日本庭園で、江戸時代の主だった大名庭園もこの様式です。清流が滝から渓谷を下り海に見立てた池へと流れるありさまは、日本の自然景観を象徴的に凝縮しています。さらに徳川園は、高低差の大きな地形や既存の樹林をそのまま利用し、その中に武家社会の豪快さを象徴するような巨石を用いた岩組みが配置されています。新緑や紅葉、牡丹や花菖蒲の花々も四季を通じてお楽しみいただけます。
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer class="mt-auto text-white-50">
+        <p>
+          Cover template for
+          <a href="https://getbootstrap.com/" class="text-white">Bootstrap</a>,
+          by <a href="https://x.com/mdo" class="text-white">@mdo</a>.
+        </p>
+      </footer>
+    </div>
+    <script
+      src="./assets/dist/js/bootstrap.bundle.min.js"
+      class="astro-vvvwv3sm">
+    </script>
+  </body>
+</html>
